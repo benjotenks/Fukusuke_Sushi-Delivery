@@ -5,8 +5,11 @@ const { ApolloServer, gql } = require('apollo-server-express');
 const path = require('path');
 require('dotenv').config();
 
+
+const User = require('./models/user');
+
 // Uri de conexion a la base de datos
-uri = process.env.mongodbURI;
+const uri = process.env.mongodbURI;
 
 // Conexion con la base de datos
 mongoose.connect(uri, {
@@ -53,7 +56,7 @@ type Query {
     getUser(id: ID!): User
 }
 type Mutation {
-    addUser(input: UserInput!): User
+    addUser(input: UserInput): User
     updateUser(
         id: ID!
         input: UserInput) : User
@@ -79,9 +82,9 @@ const resolvers = {
                 await user.save();
                 return user;
             } catch (error) {
-                console.error('Error adding user: ', error);
-                throw new Error('Failed to add user');
-            }
+                    console.error('Error adding user: ', error);
+                    throw new Error(`Failed to add user: ${error.message}`);
+                }
         },
         async updateUser(_, { id, input }){
             const user = await User.findByIdAndUpdate(id, input, {new: true});
@@ -104,7 +107,9 @@ const PORT = process.env.PORT;
 
 // Se habilitan las soliiciudes CORS
 const corsOptions = {
-    origin: 'http://localhost:${PORT}',
+    origin: [`http://localhost:${PORT}`,
+            `https://fukusuke-sushi-delivery.onrender.com`,
+    ],
     credentials: true
 }
 
@@ -133,5 +138,5 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Se redirige a index.html para mostrar algo
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'html/index.html'));
 });

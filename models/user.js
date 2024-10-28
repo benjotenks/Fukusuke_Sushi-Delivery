@@ -2,10 +2,6 @@ const mongoose = require('mongoose');
 
 //Creamos el esquema de User con sus requisitos por caso
 const userSchema = new mongoose.Schema({
-    ID: {
-        type: String,
-        requires: true
-    },
     run: {
         type: String,
         required: true
@@ -14,7 +10,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    adress: {
+    address: {
         type: String,
         required: true
     },
