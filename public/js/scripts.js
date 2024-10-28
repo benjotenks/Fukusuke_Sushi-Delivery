@@ -1,3 +1,8 @@
+let userId = null;
+let pedidoId = null;
+let categories = null;
+let pedidoElecciones = [];
+
 // Crea las cartas del menu en base al archivo menu.csv
 function createCard(name, description, price, image) {
     const card = document.createElement('div');
@@ -47,79 +52,137 @@ function createCard(name, description, price, image) {
     return card;
 }
 
-// Carga el menu desde los archivos menu.csv y categorys.txt
-function loadMenu(){
-    // Cargar las categorias
-    fetch('/menuData/categorys.txt') // Ruta a categorys.txt en el directorio raíz
-    .then(response => {
-        // Verificar si la respuesta fue exitosa
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        // Convertir la respuesta a texto
-        return response.text(); // Convertir la respuesta a texto
-    })
-    // Procesar el texto obtenido
-    .then(data => {
-        const categories = data.split('\n')
-            .map(line => line.trim()) // Eliminar espacios en blanco y caracteres al inicio/final
-            .filter(line => line !== ''); // Filtrar líneas vacías
-        // Cargar el menu
-        fetch('/menuData/menu.csv')
-        .then(response => {
-            // Verificar si la respuesta fue exitosa
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            // Convertir la respuesta a texto
-            return response.text();
-        })
-        // Procesar el texto obtenido
-        .then(data => {
-            const menuItems = data.split('\n')
-                .map(line => line.split('\t')) // Convertir cada línea en un array
-                .map(([id, Nombre, Descripcion, Precio, Categoria, Imagen]) => ({
-                    id, 
-                    nombre: Nombre, 
-                    descripcion: Descripcion, 
-                    precio: Precio, 
-                    categoria: Categoria, 
-                    imagen: Imagen
-                }))
-                .filter(item => 
-                    Object.values(item).every(value => value.trim() !== ""));
-            // Agrupar los items del menu por categoría
-            const menuMap = new Map();
-            menuItems.forEach((item, index) => {
-                if (index === 0) return; // Saltar el primer elemento
-            
-                if (!menuMap.has(item.categoria)) {
-                    menuMap.set(item.categoria, []);
-                }
-                menuMap.get(item.categoria).push(item);
-            });
-            // Crea las cartas del menu en base a las categorias
-            divsMenuOpctions = document.getElementById('menu-options');
-            divsMenuOptionsChilds = Array.from(divsMenuOpctions.children);
-            divsMenuOptionsChilds.forEach((div, index) => {
-                menuMap.get(categories[index]).forEach(item => {
-                    const divSon = document.createElement('div');
-                    divSon.textContent = categories[index];
-                    divSon.style = "text-align: center; justify-content: center; font-size: 20px; font-weight: bold; border: 1px solid";
-                    div.appendChild(divSon);
-                    div.appendChild(createCard(item.nombre, item.descripcion, item.precio, ('/menuData/imagenes/' + item.imagen)));
-                });
-            });
-        });
-    })
-    // Capturar errores
-    .catch(error => {
-        console.error('There has been a problem with your fetch operation:', error);
-    });
+async function getMenu() {
+    let menu = new Map();
+    try {
+        // Cargar las categorías
+        const categoryResponse = await fetch('/menuData/categorys.txt');
+        if (!categoryResponse.ok) throw new Error('Network response was not ok');
+        const categoryData = await categoryResponse.text();
 
+        categories = categoryData
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line !== '');
+
+        // Cargar el menú
+        const menuResponse = await fetch('/menuData/menu.csv');
+        if (!menuResponse.ok) throw new Error('Network response was not ok');
+        const menuData = await menuResponse.text();
+
+        const menuItems = menuData
+            .split('\n')
+            .map(line => line.split('\t'))
+            .map(([id, Nombre, Descripcion, Precio, Categoria, Imagen]) => ({
+                id,
+                nombre: Nombre,
+                descripcion: Descripcion,
+                precio: Precio,
+                categoria: Categoria,
+                imagen: Imagen,
+            }))
+            .filter(item =>
+                Object.values(item).every(value => value.trim() !== '')
+            );
+
+        // Agrupar los items del menú por categoría
+        menuItems.forEach((item, index) => {
+            if (index === 0) return; // Saltar el primer elemento
+            if (!menu.has(item.categoria)) {
+                menu.set(item.categoria, []);
+            }
+            menu.get(item.categoria).push(item);
+        });
+
+        return menu;
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+        return null; // Devolver null si hay un error
+    }
 }
 
-// Al cargar la pagina se carga el menu
+// Carga el menu desde los archivos menu.csv y categorys.txt
+function loadMenu(menu){
+    // Crea las cartas del menu en base a las categorias
+    divsMenuOpctions = document.getElementById('menu-options');
+    divsMenuOptionsChilds = Array.from(divsMenuOpctions.children);
+    divsMenuOptionsChilds.forEach((div, index) => {
+        menu.get(categories[index]).forEach(item => {
+            const divSon = document.createElement('div');
+            divSon.textContent = categories[index];
+            divSon.style = "text-align: center; justify-content: center; font-size: 20px; font-weight: bold; border: 1px solid";
+            div.appendChild(divSon);
+            div.appendChild(createCard(item.nombre, item.descripcion, item.precio, ('/menuData/imagenes/' + item.imagen)));
+        });
+    });
+}
+
+function initPedido(menu){
+    // Div Para id de Usuario Centrado
+    divIdUser = document.getElementById('pedidoUserId');
+    divIdUserText = document.createElement('div');
+    divIdUserText.className = 'd-flex justify-content-center align-items-center';
+    divIdUserText.style = "font-size: 20px; font-weight: bold; border: 1px solid";
+    userId = Math.floor(Math.random() * 100000); // Temporal (bueno todo es temporal pero este es temporal del temporal)
+    divIdUserText.textContent = `User ID: ${userId}`; 
+    divIdUser.appendChild(divIdUserText);
+
+    // Diva para ide del pedido Centrado
+    divIdPedido = document.getElementById('pedidoId');
+    divIdPedidoText = document.createElement('div');
+    divIdPedidoText.className = 'd-flex justify-content-center align-items-center';
+    divIdPedidoText.style = "font-size: 20px; font-weight: bold; border: 1px solid";
+    pedidoId = Math.floor(Math.random() * 100000);
+    divIdPedidoText.textContent = `Pedido ID: ${pedidoId}`; // El id es random pero tendra que ser un id de mongoDB
+    divIdPedido.appendChild(divIdPedidoText);
+
+    pedidoElecciones.push(userId);
+    pedidoElecciones.push(pedidoId);
+    pedidoElecciones.push([]);
+
+    // Opciones de pedido
+    divPedidoOptions = document.getElementById('pedidoMenuOpcs');
+    menu.forEach((value, key) => {
+        div = document.createElement('div');
+        div.className = 'd-flex flex-row align-items-center ml-1 border';
+        text = document.createElement('p');
+        text.className = 'mt-3 border';
+        text.textContent = key;
+        text.style.width = '90px';
+        div.appendChild(text);
+        value.forEach(item => {
+            btnSon = document.createElement('button');
+            btnSon.textContent = `${item.nombre}`;
+            btnSon.className = 'mx-3 btn btn-primary';
+            btnSon.style = 'border: 1px solid red; transition: 0.5s ease';
+            div.appendChild(btnSon);
+        })
+        divPedidoOptions.appendChild(div);
+    })
+    divPedidoOptions.addEventListener('click', (event) => {
+        if (event.target.tagName === 'BUTTON') {
+            event.target.className = 'mx-3 btn btn-success';
+            pedidoElecciones[2].push(event.target.textContent);
+            setTimeout(() => {
+                event.target.className = 'mx-3 btn btn-primary';
+            }, 1500);
+            console.log(pedidoElecciones);
+        }
+    })
+
+
+    
+}
+
+async function initTest(){
+    const testMenu = await getMenu();
+    loadMenu(testMenu);
+    initPedido(testMenu);
+}
+
+// Al cargar la pagina
 document.addEventListener('DOMContentLoaded', (event) => {
-    loadMenu();
+    initTest();
 });
+
+
