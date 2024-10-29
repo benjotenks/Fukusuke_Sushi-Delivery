@@ -53,7 +53,7 @@ input UserInput {
 }
 type Query {
     getUsers: [User]
-    getUser(id: ID!): User
+    getUser(email: String!, password: String!): User
 }
 type Mutation {
     addUser(input: UserInput): User
@@ -70,8 +70,14 @@ const resolvers = {
             const users = await User.find();
             return users;
         },
-        async getUser(_, { id }){
-            const user = await User.findById(id);
+        async getUser(_, { email, password }){
+            const user = await User.findOne({ email });
+            if (!user) {
+                throw new Error('User not found');
+            }
+            if (user.password !== password) {
+                throw new error('Invalid credentials');
+            }
             return user;
         },
     },
@@ -82,9 +88,9 @@ const resolvers = {
                 await user.save();
                 return user;
             } catch (error) {
-                    console.error('Error adding user: ', error);
-                    throw new Error(`Failed to add user: ${error.message}`);
-                }
+                console.error('Error adding user: ', error);
+                throw new Error(`Failed to add user: ${error.message}`);
+            }
         },
         async updateUser(_, { id, input }){
             const user = await User.findByIdAndUpdate(id, input, {new: true});

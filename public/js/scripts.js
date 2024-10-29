@@ -105,7 +105,7 @@ async function getMenu() {
 function loadMenu(menu){
     // Crea las cartas del menu en base a las categorias
     divsMenuOpctions = document.getElementById('menu-options');
-    divsMenuOptionsChilds = Array.from(divsMenuOpctions.children);
+    divsMenuOptionsChilds = Array.from(divsMenuOpctions.children).slice(1);
     divsMenuOptionsChilds.forEach((div, index) => {
         menu.get(categories[index]).forEach(item => {
             const divSon = document.createElement('div');
@@ -117,13 +117,13 @@ function loadMenu(menu){
     });
 }
 
+
 function initPedido(menu){
     // Div Para id de Usuario Centrado
     divIdUser = document.getElementById('pedidoUserId');
     divIdUserText = document.createElement('div');
     divIdUserText.className = 'd-flex justify-content-center align-items-center';
     divIdUserText.style = "font-size: 20px; font-weight: bold; border: 1px solid";
-    userId = Math.floor(Math.random() * 100000); // Temporal (bueno todo es temporal pero este es temporal del temporal)
     divIdUserText.textContent = `User ID: ${userId}`; 
     divIdUser.appendChild(divIdUserText);
 
