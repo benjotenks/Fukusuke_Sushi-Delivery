@@ -2,6 +2,7 @@ let userId = null;
 let pedidoId = null;
 let categories = null;
 let pedidoElecciones = [];
+let User = null;
 
 // Crea las cartas del menu en base al archivo menu.csv
 function createCard(name, description, price, image) {
@@ -50,6 +51,15 @@ function createCard(name, description, price, image) {
     card.appendChild(cardBody);
 
     return card;
+}
+
+async function animBtn(btn, primColor){
+    btn.addEventListener('click', (event) => {
+        btn.className = 'btn btn-success';
+        setTimeout(() => {
+            btn.className = `btn btn-${primColor}`;
+        }, 1500);
+    });
 }
 
 async function getMenu() {
@@ -162,6 +172,7 @@ function initPedido(menu){
     divPedidoOptions.addEventListener('click', (event) => {
         if (event.target.tagName === 'BUTTON') {
             event.target.className = 'mx-3 btn btn-success';
+            event.target.type = 'button'; 
             pedidoElecciones[2].push(event.target.textContent);
             setTimeout(() => {
                 event.target.className = 'mx-3 btn btn-primary';
@@ -176,6 +187,9 @@ function initPedido(menu){
 
 async function initTest(){
     const testMenu = await getMenu();
+    animBtn(document.getElementById('registerBtn'), 'primary');
+    animBtn(document.getElementById('login'), 'danger');
+    animBtn(document.getElementById('submitPedido'), 'primary');
     loadMenu(testMenu);
     initPedido(testMenu);
 }

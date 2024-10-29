@@ -7,7 +7,7 @@ require('dotenv').config();
 
 
 const User = require('./models/user');
-
+const Pedido = require('./models/pedido');
 // Uri de conexion a la base de datos
 const uri = process.env.mongodbURI;
 
@@ -53,14 +53,14 @@ input UserInput {
 }
 type Query {
     getUsers: [User]
-    getUser(email: String!, password: String!): User
+    findUserByEmail(email: String!, password: String!): User
 }
 type Mutation {
     addUser(input: UserInput): User
     updateUser(
         id: ID!
         input: UserInput) : User
-        deleteUser(id: ID!) : Alert
+    deleteUser(id: ID!) : Alert
 }
 `;
 // Definir los resolvers
@@ -70,7 +70,7 @@ const resolvers = {
             const users = await User.find();
             return users;
         },
-        async getUser(_, { email, password }){
+        async findUserByEmail(_, { email, password }){
             const user = await User.findOne({ email });
             if (!user) {
                 throw new Error('User not found');
@@ -101,7 +101,7 @@ const resolvers = {
             return {
                 message: 'User deleted'
             };
-        }
+        },
     }
 };
 
