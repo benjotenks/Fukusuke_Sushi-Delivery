@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 // Creamos el esquema de pedido con lo necesario para manejarlo
 const pedidoSchema = new mongoose.Schema({
     user: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
     pedidoElecciones: {

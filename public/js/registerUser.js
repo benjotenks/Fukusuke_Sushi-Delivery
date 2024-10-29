@@ -67,6 +67,7 @@ document.getElementById('registerUserForm').addEventListener('submit', async (ev
     }
     if (funciono) {
         console.log('Informacion cargada a la base de datos.');
+        alert('Usuario registrado');
     }
     
 })

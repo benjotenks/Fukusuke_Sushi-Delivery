@@ -18,7 +18,9 @@ document.getElementById('pedido').addEventListener('submit', async (event) =>{
                     mutation addPedido($input: PedidoInput) {
                         addPedido(input: $input) {
                             id
-                            user
+                            user {
+                                id
+                            }
                             pedidoElecciones
                         }
                     }
@@ -33,9 +35,7 @@ document.getElementById('pedido').addEventListener('submit', async (event) =>{
         });
         
         const result = await response.json(); // Convertir la respuesta a JSON
-        if (result.data && result.data.addPedido) {
-            console.log('Pedido agregado:', result.data.addPedido);
-        }
+        alert('Pedido registrado'); // Mostrar alerta al usuario
     } catch (error){
         console.log('Error: ', error);
     }

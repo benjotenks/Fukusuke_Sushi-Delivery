@@ -33,7 +33,9 @@ document.getElementById('loginUserForm').addEventListener('submit', async (event
         // Comprobar si se obtuvo un usuario
         if (result.data && result.data.findUserByEmail) {
             userId = result.data.findUserByEmail.id;
+            console.log('De login: ', result.data);
             User = result.data.findUserByEmail;
+            alert('Usuario logueado');
             document.getElementById('pedidoUserId').children[0].textContent = 'User id: ' + userId;
         } else {
             console.log('User not found or invalid credentials');

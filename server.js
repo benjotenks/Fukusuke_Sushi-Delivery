@@ -39,7 +39,7 @@ type User {
 }
 type Pedido {
     id: ID!
-    user: String!
+    user: User!
     pedidoElecciones: [String!]!
 }
 type Alert {
@@ -58,7 +58,7 @@ input UserInput {
     phone: String!
 }
 input PedidoInput {
-    user: String!
+    user: ID!
     pedidoElecciones: [String!]!
 }
 type Query {
