@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const User = require('./models/user');
 const Pedido = require('./models/pedido');
+
 // Uri de conexion a la base de datos
 const uri = process.env.mongodbURI;
 
@@ -36,6 +37,11 @@ type User {
     password: String!
     phone: String!
 }
+type Pedido {
+    id: ID!
+    user: String!
+    pedidoElecciones: [String!]!
+}
 type Alert {
     message: String
 }
@@ -51,9 +57,16 @@ input UserInput {
     password: String!
     phone: String!
 }
+input PedidoInput {
+    user: String!
+    pedidoElecciones: [String!]!
+}
 type Query {
     getUsers: [User]
     findUserByEmail(email: String!, password: String!): User
+
+    getPedidos: [Pedido]
+    getPedido(id: ID!): Pedido
 }
 type Mutation {
     addUser(input: UserInput): User
@@ -61,6 +74,8 @@ type Mutation {
         id: ID!
         input: UserInput) : User
     deleteUser(id: ID!) : Alert
+
+    addPedido(input: PedidoInput): Pedido
 }
 `;
 // Definir los resolvers
@@ -76,7 +91,7 @@ const resolvers = {
                 throw new Error('User not found');
             }
             if (user.password !== password) {
-                throw new error('Invalid credentials');
+                throw new Error('Invalid credentials');
             }
             return user;
         },
@@ -102,6 +117,12 @@ const resolvers = {
                 message: 'User deleted'
             };
         },
+
+        async addPedido(_, { input }) {
+            const newPedido = new Pedido(input);
+            await newPedido.save();
+            return newPedido;
+        }
     }
 };
 

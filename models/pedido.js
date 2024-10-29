@@ -6,14 +6,10 @@ const pedidoSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    pedidoId: {
-        type: String,
-        required: true
+    pedidoElecciones: {
+        type: [String], // Lista de cadenas
+        required: true,
     },
-    menuOpc: [{
-        type: String,
-        required: true
-    }]
 });
 
 // Exportar el modelo de pedido

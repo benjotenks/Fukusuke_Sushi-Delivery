@@ -33,7 +33,6 @@ document.getElementById('loginUserForm').addEventListener('submit', async (event
         // Comprobar si se obtuvo un usuario
         if (result.data && result.data.findUserByEmail) {
             userId = result.data.findUserByEmail.id;
-            pedidoElecciones[0] = userId;
             User = result.data.findUserByEmail;
             document.getElementById('pedidoUserId').children[0].textContent = 'User id: ' + userId;
         } else {

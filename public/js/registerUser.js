@@ -20,9 +20,6 @@ document.getElementById('registerUserForm').addEventListener('submit', async (ev
     const password = document.getElementById('registerPassword').value;
     const phone = document.getElementById('registerPhone').value;
 
-    console.log('Sending user data:', {
-        run, name, address, province, region, bornDate, sex, email, password, phone
-    });
     try {
         const response = await fetch(`${baseUrl}/graphql`, {
             method: 'POST',

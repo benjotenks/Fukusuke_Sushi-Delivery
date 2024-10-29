@@ -146,9 +146,6 @@ function initPedido(menu){
     divIdPedidoText.textContent = `Pedido ID: ${pedidoId}`; // El id es random pero tendra que ser un id de mongoDB
     divIdPedido.appendChild(divIdPedidoText);
 
-    pedidoElecciones.push(userId);
-    pedidoElecciones.push(pedidoId);
-    pedidoElecciones.push([]);
 
     // Opciones de pedido
     divPedidoOptions = document.getElementById('pedidoMenuOpcs');
@@ -173,7 +170,7 @@ function initPedido(menu){
         if (event.target.tagName === 'BUTTON') {
             event.target.className = 'mx-3 btn btn-success';
             event.target.type = 'button'; 
-            pedidoElecciones[2].push(event.target.textContent);
+            pedidoElecciones.push(event.target.textContent);
             setTimeout(() => {
                 event.target.className = 'mx-3 btn btn-primary';
             }, 1500);
