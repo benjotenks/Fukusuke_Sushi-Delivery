@@ -1,0 +1,11 @@
+.test-3 > :first-child {
+    border: 10px solid black;
+}
+
+.test-3 > :nth-child(2) {
+    border: 10px solid red;
+}
+
+.test-3 > :nth-child(3) {
+    border: 10px solid green;
+}

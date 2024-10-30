@@ -163,7 +163,19 @@ startServer().then(() => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-// Se redirige a index.html para mostrar algo
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'html/index.html'));
+// Redirigir a index.html al acceder a la raíz (/)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'html', 'index.html'));
+});
+  
+// Ruta dinámica para otras páginas HTML en /public/html
+app.get('/:page', (req, res) => {
+    const page = req.params.page;
+    const filePath = path.join(__dirname, 'public', 'html', `${page}.html`);
+
+    res.sendFile(filePath, (err) => {
+        if (err) {
+        res.status(404).send('Página no encontrada');
+        }
+    });
 });
