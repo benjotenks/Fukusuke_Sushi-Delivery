@@ -1,4 +1,6 @@
-
+body {
+    min-width: 500px;
+}
 
 /* Gradiente personalizado para el navbar */
 .navbar-gradient { 
@@ -9,6 +11,12 @@
 .navbar-brand {
     color: white !important;
     font-size: 2rem; 
+}
+
+.nav-icon {
+    color: white !important;
+    font-size: 1.2rem;
+    padding: 0 10px;
 }
 
 .logo-container {
@@ -47,21 +55,73 @@ video {
 .glass-container {
     width: 90%;
     margin-top: 30px;
+    margin-bottom: 30px;
     padding: 30px 30px;
     border-radius: 50px;
 
     /*background-color: rgb(255, 255, 255, 0.5)*/;
     backdrop-filter: blur(15px);
     background: linear-gradient(45deg, rgba(255, 165, 89, 0.7), rgba(0, 122, 255, 0.5), rgba(29, 185, 107, 0.5));
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
 }
 
 .glass-container * > h1{
+    display: flex;
+    justify-content: center;
     /* font-family:'Times New Roman'; */
     font-weight: 800;
     color: #FFFFFF; /* Blanco */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5) !important;
 }
 
+.glass-container * > h2 {
+    display: flex;
+    justify-content: flex-start;
+    font-weight: 600;
+    color: #FFFFFF; /* Blanco */
+}
+
+.menuOpcsCard {
+    /* Padding(p-1) y Margin(m-2) */
+    width: 100%;
+    height: 150px;
+    background: rgb(255, 255, 255, 0.5);
+
+    gap: 30px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.menuOpcsCard > * {
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.menuOpcsCard > :nth-child(1) {
+    width: 20%;
+    height: auto;
+}
+
+.menuOpcsCard > :nth-child(2) {
+    width: 60%;
+    height: auto;
+}
+
+.menuOpcsCard > :nth-child(3) {
+    width: 20%;
+    height: auto;
+}
+
+
+.cartButton {
+    background: transparent;
+    border: none;
+}
+
+footer {
+    background: linear-gradient(rgb(0,0, 0, 0), rgb(0, 0, 0, 0.75), rgb(0,0, 0, 1));
+    padding: 10px 5px;
+    color: white;
+}
