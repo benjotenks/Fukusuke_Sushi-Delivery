@@ -1,4 +1,3 @@
-// Definir la URL base dependiendo del entorno (local o producción)
 document.getElementById('loginUserForm').addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -16,8 +15,16 @@ document.getElementById('loginUserForm').addEventListener('submit', async (event
                     query findUserByEmail($email: String!, $password: String!) {
                         findUserByEmail(email: $email, password: $password) {
                             id
+                            run
+                            name
+                            address
+                            province
+                            region
+                            bornDate
+                            sex
                             email
-                            password    
+                            password
+                            phone
                         }
                     }
                     `,
@@ -32,11 +39,25 @@ document.getElementById('loginUserForm').addEventListener('submit', async (event
 
         // Comprobar si se obtuvo un usuario
         if (result.data && result.data.findUserByEmail) {
-            userId = result.data.findUserByEmail.id;
-            console.log('De login: ', result.data);
-            User = result.data.findUserByEmail;
-            alert('Usuario logueado');
-            document.getElementById('pedidoUserId').children[0].textContent = 'User id: ' + userId;
+            User = new Map([
+                ["userId", result.data.findUserByEmail.id],
+                ["userName", result.data.findUserByEmail.name],
+                ["userRun", result.data.findUserByEmail.run],
+                ["userAddress", result.data.findUserByEmail.address],
+                ["userProvince", result.data.findUserByEmail.province],
+                ["userRegion", result.data.findUserByEmail.region],
+                ["userBornDate", result.data.findUserByEmail.bornDate],
+                ["userSex", result.data.findUserByEmail.sex],
+                ["userEmail", result.data.findUserByEmail.email],
+                ["userPassword", result.data.findUserByEmail.password],
+                ["userPhone", result.data.findUserByEmail.phone],
+            ]);
+
+            
+            changeNavUser(User.get("userRun"));
+            
+            hideModal(bootstrap.Modal.getInstance(document.getElementById('loginModal')));
+            //document.getElementById('pedidoUserId').children[0].textContent = 'User id: ' + userId;
         } else {
             console.log('User not found or invalid credentials');
         }

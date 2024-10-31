@@ -1,9 +1,35 @@
+/*
+ TODO:
+    1. Potencialmente Cambiar el user por un dropdown de bootstrap
+*/
+
+
 const imgDir = '/menuData/imagenes/'; 
 let categories = [];
 let menu = new Map();
 let menuContainer = null;
 let cart = new Map();
+let User = new Map();
+let userRun = null;
+let userId = null;
 
+async function login(email, password) {
+    const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+
+    // Poner valores en los campos
+    emailInput.value = email;
+    passwordInput.value = password;
+
+    // Llama a la función de login o ejecuta otra lógica
+    document.getElementById('loginUserForm').dispatchEvent(new Event('submit'));
+}
+
+function hideModal(modal) {
+    if (modal) {
+        modal.hide();
+    }
+}
 
 // Función para crear una carta de producto
 function createCard(opcion) {
@@ -221,7 +247,7 @@ async function initMenu() {
     categories.forEach(async (category) => {
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'categoryDiv my-4'; // Margen superior e inferior
-        categoryDiv.style = "width: 100%; padding: 1px; border: 1px solid rgba(0, 0, 0, 0.09);";
+        categoryDiv.style = "width: 100%; padding: 1px; border: 1px solid rgba(255, 255, 255, 0.09);";
     
         // Crear encabezado para la categoría
         const categoryTitle = document.createElement('h2');
@@ -233,7 +259,7 @@ async function initMenu() {
         menu.forEach(async (opcion) => {
             if (opcion.Categoria === category) {
                 const card = await createCard(opcion); // Esperar la creación de la tarjeta
-                card.classList.add('mx-2'); // Espacio horizontal entre tarjetas
+                card.classList.add('px-3'); // Espacio horizontal entre tarjetas
                 categoryDiv.appendChild(card);
             }
         });
@@ -273,6 +299,60 @@ function initCart() {
     });
 }
 
+function changeNavUser(run) {
+    navUser = document.getElementById('navUser');
+    navUser.innerHTML = `
+    <i class="bi bi-person-fill nav-icon"></i>
+    <button class="nav-text text-white" id="userBtn" style="background: transparent; border: none;" data-bs-toggle="modal" data-bs-target="#userModal">${run}</button>
+    `;
+
+    userModalBody = document.getElementById('userModalBody');
+    userModalBody.innerHTML = `
+    <div class="d-flex flex-column position-relative scrollspy-example p-3" style="height: 300px; overflow-y: auto;" data-bs-spy="scroll" data-bs-target="#scrollspyMenu" data-bs-offset="0" tabindex="0">
+        ${User.get("userRun") ? `<p>Run: ${User.get("userRun")}</p>` : ''}
+        ${User.get("userName") ? `<p>Nombre: ${User.get("userName")}</p>` : ''}
+        ${User.get("userEmail") ? `<p>Email: ${User.get("userEmail")}</p>` : ''}
+        ${User.get("userPassword") ? `<p>Contraseña: ${User.get("userPassword")}</p>` : ''}
+        ${User.get("userAddress") ? `<p>Dirección: ${User.get("userAddress")}</p>` : ''}
+        ${User.get("userProvince") ? `<p>Provincia: ${User.get("userProvince")}</p>` : ''}
+        ${User.get("userRegion") ? `<p>Región: ${User.get("userRegion")}</p>` : ''}
+        ${User.get("userBornDate") ? `<p>Fecha de nacimiento: ${User.get("userBornDate")}</p>` : ''}
+        ${User.get("userSex") ? `<p>Sexo: ${User.get("userSex")}</p>` : ''}
+        ${User.get("userPhone") ? `<p>Telefono: ${User.get("userPhone")}</p>` : ''}
+
+    </div>
+    `
+    hideModal(bootstrap.Modal.getInstance(document.getElementById('registerModal')))
+}
+
+function logOut() {
+    hideModal(bootstrap.Modal.getInstance(document.getElementById('userModal')))
+    User = new Map();
+    const navUser = document.getElementById('navUser');
+    navUser.innerHTML = `
+    <i class="bi bi-person-fill nav-icon"></i>
+    <div class="d-flex flex-column align-items-center" style="margin:0px !important; padding: 0px !important;">
+        <buttton type="button" class="login" data-bs-toggle="modal" data-bs-target="#loginModal" >Iniciar Sesion</buttton>
+        <buttton type="button" class="register" data-bs-toggle="modal" data-bs-target="#registerModal" >Registrarse</buttton>
+    </div>
+    `
+    initButtons();
+}
+
+function initButtons() {
+    const logOutBtn = document.getElementById('confirmLogout');
+    logOutBtn.addEventListener('click', () => {
+        logOut();
+    });
+
+    const testLoginBtn = document.getElementsByName('testLogin');
+    testLoginBtn.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            login('test@test.test', 'test');
+        });
+    });
+}
+
 async function startLanding() {
     menu = await getMenu()
     await initMenu();
@@ -285,5 +365,6 @@ document.addEventListener('DOMContentLoaded', async () =>{
 document.addEventListener('DOMContentLoaded', () =>{
     updateCart();
     initCart();
+    initButtons();
 });
 

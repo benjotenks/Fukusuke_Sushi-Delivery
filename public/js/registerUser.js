@@ -4,7 +4,6 @@ const baseUrl =
     ? 'http://localhost:8090' // Local
     : 'https://fukusuke-sushi-delivery.onrender.com';
 
-console.log(baseUrl);
 const funciono = true;
 document.getElementById('registerUserForm').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -63,11 +62,11 @@ document.getElementById('registerUserForm').addEventListener('submit', async (ev
         });
     } catch (error) {
         console.error('Error: ', error);
+        
         funciono = false;
     }
     if (funciono) {
-        console.log('Informacion cargada a la base de datos.');
-        alert('Usuario registrado');
+        login(email, password);
     }
     
 })
