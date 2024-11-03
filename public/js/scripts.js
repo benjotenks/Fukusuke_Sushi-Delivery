@@ -1,6 +1,6 @@
 /*
  TODO:
-    1. Potencialmente Cambiar el user por un dropdown de bootstrap
+    1. Agregar mutations a pedidos ya existentes
 */
 
 
@@ -11,7 +11,7 @@ let menuContainer = null;
 let cart = new Map();
 let User = new Map();
 let userRun = null;
-let userId = null;
+let pedidosUsuario = new Map();
 
 async function login(email, password) {
     const emailInput = document.getElementById('loginEmail');
@@ -167,30 +167,63 @@ function updateCart() {
     // Actualizar el carrito en el DOM
     const cartBody = document.getElementById('cartBody');
     if (cart.size === 0) {
-        cartBody.innerHTML = '<p>El carrito está vacío</p>';
+        cartBody.innerHTML = '<p style="text-align: center; font-style: italic; font-weight: bold;">El carrito está vacío</p>';
         return;
     }
     else {
         cartBody.innerHTML = '';
+
+        const form = document.createElement('form');
+        form.id = 'cartForm';
+
+        const header = document.createElement('div');
+        header.className = 'row mb-3 d-flex flex-row justify-content-between align-items-center';
+        header.innerHTML = `
+        <div class="col-3 d-flex justify-content-center align-items-center text-center titleItemCart" style="font-style: italic; font-weight: bold;">Producto</div>
+        <div class="col-3 d-flex justify-content-center align-items-center text-center quantityItemCart" style="font-style: italic; font-weight: bold;">Cantidad</div>
+        <div class="col-3 d-flex justify-content-center align-items-center text-center priceItemCart" style="font-style: italic; font-weight: bold;">Precio</div>
+        <div class="col-3 d-flex justify-content-end" style="font-style: italic; font-weight: bold;">Acciones</div>
+        `;
+
+        form.appendChild(header);
         cart.forEach((product) => {
             const row = document.createElement('div');
             row.className = 'row d-flex flex-row justify-content-between align-items-center';
             row.innerHTML = `
-            <div class="col-3 d-flex text-center titleItemCart">${product.title}</div>
-            <div class="col-3 quantityItemCart">${product.quantity}</div>
-            <div class="col-3 priceItemCart">$${product.price}</div>
+            <div class="col-3 d-flex justify-content-center align-items-center text-center titleItemCart" name="titleCartOpc">${product.title}</div>
+            <div class="col-3 d-flex justify-content-center align-items-center text-center quantityItemCart" name="quantityCartOpc">${product.quantity}</div>
+            <div class="col-3 d-flex justify-content-center align-items-center text-center priceItemCart" name="priceCartOpc">$${product.price}</div>
             <div class="col-3 d-flex justify-content-end">
-                <button class="cartButton text-primary" id="addItemCart">
+                <button class="cartButton text-primary" name="addItemCart">
                     <i class="bi bi-plus-circle-fill"></i>
                 </button>
-                <button class="cartButton text-danger" id="eraseItemCart">
+                <button class="cartButton text-danger" name="eraseItemCart">
                     <i class="bi bi-dash-circle-fill"></i>
                 </button>
             </div>
             `;
 
-            cartBody.appendChild(row);
+            form.appendChild(row);
         });
+
+        // Agregar botón de confirmación
+        const confirmRow = document.createElement('div');
+        confirmRow.className = 'row mt-3 d-flex flex-row justify-content-center align-items-center';
+
+        const confirmButtonCol = document.createElement('div');
+        confirmButtonCol.className = 'col-3 mt-3 d-flex justify-content-center align-items-center';
+
+        confirmButton = document.createElement('button');
+        confirmButton.type = 'submit';
+        confirmButton.className = 'btn btn-primary btn-sm';
+        confirmButton.id = 'confirmCart';
+        confirmButton.textContent = 'Confirmar';
+
+        confirmButtonCol.appendChild(confirmButton);
+        confirmRow.appendChild(confirmButtonCol);
+        form.appendChild(confirmRow);
+        cartBody.appendChild(form);
+        prepareCart(confirmButton);
     }
 }
 
@@ -199,6 +232,7 @@ function addToCart(product) {
     cart = product;
     // Estaria bueno una animacion o algo por el estilo
     updateCart();
+    
 }
 
 // Funcion que se encarga de agregar un producto al carrito
@@ -274,18 +308,18 @@ function initCart() {
     cartBody.addEventListener('click', (event) => {
         event.preventDefault();
         let button = event.target.closest('button');
-        if (button) {
+        if (button && button.id !== 'confirmCart') {
             const row = button.closest('.row');
             const title = row.querySelector('.titleItemCart').textContent;
             const product = cart.get(title); // Accede directamente al cart
 
             if (product) { // Verifica que el producto esté en el carrito
-                if (button.id === 'addItemCart') {
+                if (button.name === 'addItemCart') {
                     product.quantity += 1;
                     // Convertir `product.price` a número solo si es una cadena
                     const priceValue = menu.find(item => item.Nombre === title).Precio;
                     product.price = priceValue * product.quantity;
-                } else if (button.id === 'eraseItemCart') {
+                } else if (button.name === 'eraseItemCart') {
                     product.quantity -= 1;
                     const priceValue = menu.find(item => item.Nombre === title).Precio;
                     product.price = priceValue * product.quantity;
@@ -300,13 +334,25 @@ function initCart() {
 }
 
 function changeNavUser(run) {
-    navUser = document.getElementById('navUser');
+    const navUser = document.getElementById('userDropdown');
     navUser.innerHTML = `
-    <i class="bi bi-person-fill nav-icon"></i>
-    <button class="nav-text text-white" id="userBtn" style="background: transparent; border: none;" data-bs-toggle="modal" data-bs-target="#userModal">${run}</button>
+    <a class="nav-link text-white d-flex flex-row dropdown-toggle" id="navUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+        <i class="bi bi-person-fill nav-icon"></i>
+        <div class="d-flex flex-column align-items-center" style="margin:0; padding: 0;">
+            ${run} 
+        </div>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navUserDropdown">
+        <li>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profileModal">Ver Perfil</button>
+        </li>
+        <li>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pedidosUsuarioModal" id="pedidosUsuariosBtn">Mis Pedidos</button>
+        </li>
+    </ul>
     `;
 
-    userModalBody = document.getElementById('userModalBody');
+    const userModalBody = document.getElementById('userModalBody');
     userModalBody.innerHTML = `
     <div class="d-flex flex-column position-relative scrollspy-example p-3" style="height: 300px; overflow-y: auto;" data-bs-spy="scroll" data-bs-target="#scrollspyMenu" data-bs-offset="0" tabindex="0">
         ${User.get("userRun") ? `<p>Run: ${User.get("userRun")}</p>` : ''}
@@ -319,24 +365,69 @@ function changeNavUser(run) {
         ${User.get("userBornDate") ? `<p>Fecha de nacimiento: ${User.get("userBornDate")}</p>` : ''}
         ${User.get("userSex") ? `<p>Sexo: ${User.get("userSex")}</p>` : ''}
         ${User.get("userPhone") ? `<p>Telefono: ${User.get("userPhone")}</p>` : ''}
-
     </div>
-    `
-    hideModal(bootstrap.Modal.getInstance(document.getElementById('registerModal')))
+    `;
+    
+    hideModal(bootstrap.Modal.getInstance(document.getElementById('registerModal')));
 }
 
 function logOut() {
-    hideModal(bootstrap.Modal.getInstance(document.getElementById('userModal')))
+    hideModal(bootstrap.Modal.getInstance(document.getElementById('profileModal')));
     User = new Map();
-    const navUser = document.getElementById('navUser');
+    const navUser = document.getElementById('userDropdown');
     navUser.innerHTML = `
-    <i class="bi bi-person-fill nav-icon"></i>
-    <div class="d-flex flex-column align-items-center" style="margin:0px !important; padding: 0px !important;">
-        <buttton type="button" class="login" data-bs-toggle="modal" data-bs-target="#loginModal" >Iniciar Sesion</buttton>
-        <buttton type="button" class="register" data-bs-toggle="modal" data-bs-target="#registerModal" >Registrarse</buttton>
-    </div>
-    `
+    <a class="nav-link text-white d-flex flex-row dropdown-toggle" id="navUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+        <i class="bi bi-person-fill nav-icon"></i>
+        <div class="d-flex flex-column align-items-center" style="margin:0; padding: 0;">
+            Usuario
+        </div>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navUserDropdown">
+        <li>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar Sesión</button>
+        </li>
+        <li>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#registerModal">Registrarse</button>
+        </li>
+    </ul>
+    `;
     initButtons();
+}
+
+function initPedidosUser() {
+    const pedidosUsuarioModalBody = document.getElementById('pedidosUsuarioModalBody');
+    
+    pedidosUsuarioModalBody.innerHTML = `
+    <div class="d-flex flex-column position-relative scrollspy-example p-3" style="height: 300px; overflow-y: auto;" data-bs-spy="scroll" data-bs-target="#scrollspyMenu" data-bs-offset="0" tabindex="0">
+        ${pedidosUsuario.size === 0 ? '<p class="text-center" style="font-weight: bold; font-style: italic;">No hay pedidos</p>' : ''}
+        ${Array.from(pedidosUsuario).map(([index, pedido]) => `
+            <div class="d-flex flex-column border border-1 border-dark p-2 my-2">
+                <p style="text-align: center; font-style: italic; font-weight: bold;">Pedido ${index + 1}</p>
+                <div class="d-flex flex-row align-items-center">
+                    <p style="font-weight: bold;">Run:</p>
+                    <p class="ms-2" style="font-size: 0.9rem; font-style: italic;">${pedido.userRun}</p>
+                </div>
+                <p style="font-weight: bold;">Carrito:</p>
+                <div class="row border-bottom">
+                    <div class="col-4 mt-3 text-center" style="font-size: 0.9rem; font-weight: bold;">Nombre</div>
+                    <div class="col-4 mt-3 text-center" style="font-size: 0.9rem; font-weight: bold;">Precio</div>
+                    <div class="col-4 mt-3 text-center" style="font-size: 0.9rem; font-weight: bold;">Cantidad</div>
+                </div>
+                ${pedido.carrito.map((item) => {
+                    const itemData = JSON.parse(item);
+                    return `
+                        <div class="row border-bottom">
+                            <div class="col-4 mt-3 text-center" style="font-size: 0.9rem; font-style: italic;">${itemData.title}</div>
+                            <div class="col-4 mt-3 text-center" style="font-size: 0.9rem; font-style: italic;">${itemData.price}</div>
+                            <div class="col-4 mt-3 text-center" style="font-size: 0.9rem; font-style: italic;">${itemData.quantity}</div>
+                        </div>
+                    `;
+                }).join('')}
+                
+            </div>
+        `).join('')}
+    </div>
+    `;
 }
 
 function initButtons() {

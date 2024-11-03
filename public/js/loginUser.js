@@ -55,6 +55,8 @@ document.getElementById('loginUserForm').addEventListener('submit', async (event
 
             
             changeNavUser(User.get("userRun"));
+            getPedidos();
+            
             
             hideModal(bootstrap.Modal.getInstance(document.getElementById('loginModal')));
             //document.getElementById('pedidoUserId').children[0].textContent = 'User id: ' + userId;

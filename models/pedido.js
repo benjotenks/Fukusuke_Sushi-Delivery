@@ -7,7 +7,11 @@ const pedidoSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    pedidoElecciones: {
+    userRun: {
+        type: String,
+        required: true,
+    },
+    carrito: {
         type: [String], // Lista de cadenas
         required: true,
     },

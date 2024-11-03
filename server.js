@@ -40,7 +40,8 @@ type User {
 type Pedido {
     id: ID!
     user: User!
-    pedidoElecciones: [String!]!
+    userRun: String!
+    carrito: [String!]!
 }
 type Alert {
     message: String
@@ -59,7 +60,8 @@ input UserInput {
 }
 input PedidoInput {
     user: ID!
-    pedidoElecciones: [String!]!
+    userRun: String!
+    carrito: [String!]!
 }
 type Query {
     getUsers: [User]
@@ -67,6 +69,7 @@ type Query {
 
     getPedidos: [Pedido]
     getPedido(id: ID!): Pedido
+    getPedidosByUser(user: ID!): [Pedido]
 }
 type Mutation {
     addUser(input: UserInput): User
@@ -94,6 +97,15 @@ const resolvers = {
                 throw new Error('Invalid credentials');
             }
             return user;
+        },
+        async getPedidosByUser(_, { user }) {
+            try {
+                const pedidos = await Pedido.find({ user }).populate('user');
+                return pedidos;
+            } catch (error) {
+                console.error('No se pudo obtener los pedidos: ', error);
+                throw new Error(`No se pudo obtener los pedido: ${error.message}`);
+            }
         },
     },
     Mutation: {
