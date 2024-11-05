@@ -61,6 +61,7 @@ document.getElementById('loginUserForm').addEventListener('submit', async (event
             hideModal(bootstrap.Modal.getInstance(document.getElementById('loginModal')));
             //document.getElementById('pedidoUserId').children[0].textContent = 'User id: ' + userId;
         } else {
+            console.log(result)
             console.log('User not found or invalid credentials');
         }
         

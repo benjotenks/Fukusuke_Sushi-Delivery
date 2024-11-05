@@ -15,7 +15,7 @@ const uri = process.env.mongodbURI;
 // Conexion con la base de datos
 mongoose.connect(uri, {
     serverSelectionTimeoutMS: 30000, // 30 segundos
-    ssl: true,
+    //ssl: true,
 }).then(() => {
     console.log('Conexión a la base de datos establecida');
 }).catch(err => {
