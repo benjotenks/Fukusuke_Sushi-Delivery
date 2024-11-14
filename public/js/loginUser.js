@@ -25,6 +25,7 @@ document.getElementById('loginUserForm').addEventListener('submit', async (event
                             email
                             password
                             phone
+                            type
                         }
                     }
                     `,
@@ -51,9 +52,10 @@ document.getElementById('loginUserForm').addEventListener('submit', async (event
                 ["userEmail", result.data.findUserByEmail.email],
                 ["userPassword", result.data.findUserByEmail.password],
                 ["userPhone", result.data.findUserByEmail.phone],
+                ["userType", result.data.findUserByEmail.type],
             ]);
 
-            
+            colorUser = defineColorUser(User.get("userType"));
             changeNavUser(User.get("userRun"));
             getPedidos();
             

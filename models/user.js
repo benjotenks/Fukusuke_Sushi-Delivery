@@ -42,6 +42,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    type: {
+        type:String,
+        required: true
+    }
 })
 
 // Exportamos el modelo User hacia la base de datos

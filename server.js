@@ -36,6 +36,7 @@ type User {
     email: String!
     password: String!
     phone: String!
+    type: String!
 }
 type Pedido {
     id: ID!
@@ -111,7 +112,10 @@ const resolvers = {
     Mutation: {
         async addUser(_, { input }) {
             try {
-                const user = new User(input);
+                const user = new User({
+                    ...input,
+                    type: 'user',
+                });
                 await user.save();
                 return user;
             } catch (error) {

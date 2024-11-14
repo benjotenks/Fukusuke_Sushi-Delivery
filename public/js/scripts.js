@@ -12,6 +12,28 @@ let cart = new Map();
 let User = new Map();
 let userRun = null;
 let pedidosUsuario = new Map();
+let colorUser = 'white'; //default
+
+const usersOptionsByType = new Map({
+    'owner': [],
+    'admin': [],
+    'despacho': [],
+    'user': [{'id':'profileModalBtn', 'target': '#profileModal', 'label': 'Ver Perfil'},{'id': 'pedidosUsuariosBtn', 'target': '#pedidosUsuarioModal', 'label': 'Mis Pedidos'}],
+});
+
+
+function defineColorUser(type) {
+    switch (type) {
+        case 'admin':
+            return 'red';
+        case 'owner':
+            return 'gold';
+        case 'despacho':
+            return 'green';
+        default:
+            return 'white';
+    }
+}
 
 async function login(email, password) {
     const emailInput = document.getElementById('loginEmail');
@@ -27,6 +49,7 @@ async function login(email, password) {
 
 function hideModal(modal) {
     if (modal) {
+        document.activeElement.blur(); // Quita el foco antes de ocultar el modal
         modal.hide();
     }
 }
@@ -36,9 +59,18 @@ function createCard(opcion) {
     const imgBG = 'rgba(255, 255, 255, 0.1)';
     const txtBG = 'rgba(255, 255, 255, 0.1)';
     const prcBG = 'rgba(255, 255, 255, 0.09)';
+    /*
+    const card = document.createElement('div');
+    card.className = 'menuOpcsCard d-flex jutify-content-center align-items-center p-1 my-2';
+
+    const imgDiv = document.createElement('div');
+    imgDiv.className = 'imgDivCard';
+
+    */
+
 
     const card = document.createElement('div');
-    card.className = 'menuOpcsCard d-flex flex-row justify-content-start align-items-center p-1 my-2';
+    card.className = 'menuOpcsCard d-flex justify-content-start align-items-center p-1 my-2';
 
     // Zona de imagen
     const imgDiv = document.createElement('div');
@@ -109,6 +141,7 @@ function createCard(opcion) {
     card.appendChild(priceDiv);
 
     return card;
+    
 }
 
 // Funcion que se encarga de cargar las categorias y el menu desde los archivos de texto y excel
@@ -280,20 +313,22 @@ async function initMenu() {
 
     categories.forEach(async (category) => {
         const categoryDiv = document.createElement('div');
-        categoryDiv.className = 'categoryDiv my-4'; // Margen superior e inferior
+        categoryDiv.className = 'categoryDiv row my-3'; // Margen superior e inferior
         categoryDiv.style = "width: 100%; padding: 1px; border: 1px solid rgba(255, 255, 255, 0.09);";
     
         // Crear encabezado para la categoría
         const categoryTitle = document.createElement('h2');
         categoryTitle.className = 'p-2'; // Alinea el texto a la izquierda
         categoryTitle.textContent = category;
-        categoryDiv.appendChild(categoryTitle);
+        menuContainer.appendChild(categoryTitle);
     
         // Agregar tarjetas de productos correspondientes a la categoría
         menu.forEach(async (opcion) => {
             if (opcion.Categoria === category) {
                 const card = await createCard(opcion); // Esperar la creación de la tarjeta
-                card.classList.add('px-3'); // Espacio horizontal entre tarjetas
+                
+                card.classList.add('col-12', 'col-sm-6', 'col-md-4', 'col-lg-3', 'col-xl-4', 'px-3', 'my-2', 'mx-1');
+            
                 categoryDiv.appendChild(card);
             }
         });
@@ -333,15 +368,44 @@ function initCart() {
     });
 }
 
-function changeNavUser(run) {
-    const navUser = document.getElementById('userDropdown');
-    navUser.innerHTML = `
-    <a class="nav-link text-white d-flex flex-row dropdown-toggle" id="navUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
-        <i class="bi bi-person-fill nav-icon"></i>
-        <div class="d-flex flex-column align-items-center" style="margin:0; padding: 0;">
-            ${run} 
-        </div>
-    </a>
+function ownerOptions(){
+    options = `
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navUserDropdown">
+        <li>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profileModal">Ver Perfil</button>
+        </li>
+        <li>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#" id="#">Generar Reporte De Ventas</button>
+        </li>
+        <li>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#" id="#">Autenticar Usuario</button>
+        </li>
+    </ul>
+    `
+    return options;
+}
+
+function adminOptions(){
+    options = `
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navUserDropdown">
+        <li>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profileModal">Ver Perfil</button>
+        </li>
+        <li>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#" id="">Autenticar Usuario</button>
+        </li>
+        
+    </ul>
+    `
+    return options;
+}
+
+function despachoOptions(){
+
+}
+
+function userOptions(){
+    options = `
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navUserDropdown">
         <li>
             <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profileModal">Ver Perfil</button>
@@ -349,7 +413,35 @@ function changeNavUser(run) {
         <li>
             <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pedidosUsuarioModal" id="pedidosUsuariosBtn">Mis Pedidos</button>
         </li>
+        
     </ul>
+    `
+    return options;
+}
+
+function optionsByType(type){
+    switch (type) {
+        case 'owner':
+            return ownerOptions();
+        case 'admin': // Me acabo de dar cuenta que deberia ser root en ingles xd 
+            return adminOptions();
+        case 'despacho':
+            return despachoOptions();
+        default:
+            return userOptions();
+    }
+}
+
+function changeNavUser(run) {
+    const navUser = document.getElementById('userDropdown');
+    navUser.innerHTML = `
+    <a class="nav-link text-white d-flex flex-row dropdown-toggle" id="navUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+        <i class="bi bi-person-fill nav-icon"></i>
+        <div class="d-flex flex-column align-items-center" style="margin:0; padding: 0; color: ${colorUser};">
+            ${run} 
+        </div>
+    </a>
+    ${optionsByType(User.get("userType"))}
     `;
 
     const userModalBody = document.getElementById('userModalBody');
@@ -365,6 +457,7 @@ function changeNavUser(run) {
         ${User.get("userBornDate") ? `<p>Fecha de nacimiento: ${User.get("userBornDate")}</p>` : ''}
         ${User.get("userSex") ? `<p>Sexo: ${User.get("userSex")}</p>` : ''}
         ${User.get("userPhone") ? `<p>Telefono: ${User.get("userPhone")}</p>` : ''}
+        ${User.get("userType") ? `<p>Tipo de Usuario: ${User.get("userType").toUpperCase()}</p>` : ''}
     </div>
     `;
     
