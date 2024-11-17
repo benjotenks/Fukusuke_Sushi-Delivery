@@ -14,12 +14,12 @@ let userRun = null;
 let pedidosUsuario = new Map();
 let colorUser = 'white'; //default
 
-const usersOptionsByType = new Map({
+const usersOptionsByType = {
     'owner': [],
     'admin': [],
     'despacho': [],
     'user': [{'id':'profileModalBtn', 'target': '#profileModal', 'label': 'Ver Perfil'},{'id': 'pedidosUsuariosBtn', 'target': '#pedidosUsuarioModal', 'label': 'Mis Pedidos'}],
-});
+};
 
 
 function defineColorUser(type) {
