@@ -14,11 +14,33 @@ let userRun = null;
 let pedidosUsuario = new Map();
 let colorUser = 'white'; //default
 
+let administradorActiveAccount = null;
+// Asumo la autenticacion de usuario en el register (Por Hacer)
+
+// Variable que contiene todos los datos de uso de cada tipo de usuario del caso 19
 const usersOptionsByType = {
-    'owner': [],
-    'admin': [],
-    'despacho': [],
-    'user': [{'id':'profileModalBtn', 'target': '#profileModal', 'label': 'Ver Perfil'},{'id': 'pedidosUsuariosBtn', 'target': '#pedidosUsuarioModal', 'label': 'Mis Pedidos'}],
+    'owner': [
+        {'label': 'Ver Perfil', 'target': '#profileModal'}, 
+        {'label': 'Generar Reporte De Ventas', 'target': '#'}
+    ],
+    'admin': [
+        {'label': 'Ver Perfil', 'target': '#profileModal'}, 
+        {'label': 'Administrar Cuentas', 'target': '#administrar'}, 
+        {'label': 'Administrar Productos', 'target': '#administrar'}, 
+        {'label': 'Anular Compra', 'target': '#'}
+    ],
+    'despacho': [
+        {'label': 'Ver Perfil', 'target': '#profileModal'},
+        {'label': 'Obtener Orden Despachos', 'target': '#'}
+    ],
+    'user': [
+        {'label': 'Ver Perfil', 'target': '#profileModal', 'id':'profileModalBtn',},
+        {'label': 'Mis Pedidos', 'target': '#pedidosUsuarioModal', 'id': 'pedidosUsuariosBtn'}
+    ],
+    'virtual worker': [
+        {'label': 'Ver Perfil', 'target': '#profileModal'},
+        {'label': 'Realizar Venta', 'target': '#'}
+    ]
 };
 
 
@@ -368,68 +390,99 @@ function initCart() {
     });
 }
 
-function ownerOptions(){
-    options = `
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navUserDropdown">
-        <li>
-            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profileModal">Ver Perfil</button>
-        </li>
-        <li>
-            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#" id="#">Generar Reporte De Ventas</button>
-        </li>
-        <li>
-            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#" id="#">Autenticar Usuario</button>
-        </li>
-    </ul>
-    `
-    return options;
-}
-
-function adminOptions(){
-    options = `
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navUserDropdown">
-        <li>
-            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profileModal">Ver Perfil</button>
-        </li>
-        <li>
-            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#" id="">Autenticar Usuario</button>
-        </li>
-        
-    </ul>
-    `
-    return options;
-}
-
-function despachoOptions(){
-
-}
-
-function userOptions(){
-    options = `
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navUserDropdown">
-        <li>
-            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profileModal">Ver Perfil</button>
-        </li>
-        <li>
-            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pedidosUsuarioModal" id="pedidosUsuariosBtn">Mis Pedidos</button>
-        </li>
-        
-    </ul>
-    `
-    return options;
-}
-
 function optionsByType(type){
-    switch (type) {
-        case 'owner':
-            return ownerOptions();
-        case 'admin': // Me acabo de dar cuenta que deberia ser root en ingles xd 
-            return adminOptions();
-        case 'despacho':
-            return despachoOptions();
-        default:
-            return userOptions();
+    options = `
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navUserDropdown">
+        ${usersOptionsByType[type].map((option) => `
+            <li>
+                <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="${option.target}" ${option.id ? `id=${option.id}` : ''}>${option.label}</button>
+            </li>
+        `).join('')}
+    </ul>
+`;
+    return options;
+}
+
+function changeAdministratorModal(data) {
+    const modalBody = document.getElementById('administrarModalBody');
+    const modalFooter = document.getElementById('administrarModalFooter');
+    modalBody.innerHTML = '';
+    modalFooter.innerHTML = '';
+    if (!data) {
+        modalBody.innerHTML = `
+        <label>Run de la cuenta a administrar:</label>
+        <input type="text" class="form-control" id="runAdmin" placeholder="Run">
+        <div class="d-flex justify-content-center align-items-center my-2">
+            <button type="button" class="btn btn-primary" id="confirmAdmin" data-function="getAccountByRun">Confirmar</button>
+        </div>
+        `;
+        modalFooter.innerHTML = `
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        `;
+    } else{
+        const dataArray = Object.entries(data);
+        modalBody.innerHTML = `
+        <div class="d-flex flex-column position-relative scrollspy-example p-3" style="height: 300px; overflow-y: auto;" data-bs-spy="scroll" data-bs-target="#scrollspyMenu" data-bs-offset="0" tabindex="0">
+            ${dataArray.map(([key, value]) => `
+                <label>${key}</label>
+                <input type="text" class="form-control" id="${key}" value="${value}">
+            `).join('')}
+        </div>
+        `;
+        modalFooter.innerHTML = `
+        <button type="button" class="btn btn-secondary" data-function="saveAdministradorActiveAccount">Guardar</button>
+        <button type="button" class="btn btn-warning" data-function="changeAdministratorActiveAccountModal">Cambiar a otra cuenta</button>
+        `;
     }
+}
+
+function saveAdministradorActiveAccount(){
+    console.log("Se va a guardar");
+}
+
+function changeAdministratorActiveAccountModal() {
+    changeAdministratorModal([]);
+}
+
+function postNavChangeEvents() {
+    const navUser = document.getElementById('userDropdown');
+    navUser.addEventListener('click', (event) => {
+        event.preventDefault();
+        let button = event.target.closest('button');
+        if (!button) return;
+        if (!button.hasAttribute('data-bs-target')) return;
+        if (button.getAttribute('data-bs-target') === '#administrar') {
+            const modalTitle = document.getElementById('administrarModalTitle');
+            const modalBody = document.getElementById('administrarModalBody');
+
+            modalTitle.textContent = button.textContent; //Cambiamos el titulo del modal
+            
+            texto = button.textContent;
+            texto = texto.split(' ')[1];
+            if (!(texto === 'Productos')) {
+                modalBody.innerHTML = `
+                    <label>Run de la cuenta a administrar:</label>
+                    <input type="text" class="form-control" id="runAdmin" placeholder="Run">
+                    <div class="d-flex justify-content-center align-items-center my-2">
+                        <button type="button" class="btn btn-primary" id="confirmAdmin" data-function="getAccountByRun">Confirmar</button>
+                    </div>
+                `;
+
+                const confirmButton = document.getElementById('confirmAdmin');
+                confirmButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const functionName = confirmButton.getAttribute('data-function');
+                    if (functionName && typeof window[functionName] === 'function') {
+                        window[functionName]();
+                    } else {
+                        console.error(`Function ${functionName} is not defined`);
+                    }
+                });
+            } else {
+
+            }
+        }
+    });
 }
 
 function changeNavUser(run) {
@@ -461,6 +514,9 @@ function changeNavUser(run) {
     </div>
     `;
     
+
+    postNavChangeEvents();
+
     hideModal(bootstrap.Modal.getInstance(document.getElementById('registerModal')));
 }
 

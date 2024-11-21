@@ -68,7 +68,7 @@
             </nav>
         </header>
         <main id="landing">
-            <video autoplay loop muted>
+            <video autoplay loop muted disabled style="pointer-events: none;">
                 <source src="./media/Aquarium_Background.mp4" type="video/mp4">
             </video>
             <div class="container-fluid d-flex justify-content-center">
@@ -238,8 +238,24 @@
                 </div>
             </div>
         </div>
-        
-
+        <!-- Modal Para Administracion de Usuarios/Clientes/Productos-->
+        <div id="administrar" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header d-flex justify-content-between align-items-center">
+                        <h5 class="modal-title" id="administrarModalTitle">Administración</h5>
+                        <div class="d-flex align-items-center">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-body" id="administrarModalBody"></div>
+                    <div class="modal-footer" id="administrarModalFooter">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
         <script src="js/scripts.js" defer></script>
@@ -247,6 +263,7 @@
         <script src="js/loginUser.js" defer></script>
         <script src="js/pedido.js" defer></script>
         <script src="js/getPedidos.js" defer></script>
+        <script src="js/administrarCuentas.js" defer></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     </body>

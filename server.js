@@ -67,6 +67,7 @@ input PedidoInput {
 type Query {
     getUsers: [User]
     findUserByEmail(email: String!, password: String!): User
+    getUserByRun(run: String!): User
 
     getPedidos: [Pedido]
     getPedido(id: ID!): Pedido
@@ -107,6 +108,13 @@ const resolvers = {
                 console.error('No se pudo obtener los pedidos: ', error);
                 throw new Error(`No se pudo obtener los pedido: ${error.message}`);
             }
+        },
+        async getUserByRun(_, { run }) {
+            const user = await User.findOne({ run });
+            if (!user) {
+                throw new Error('User not found');
+            }
+            return user;
         },
     },
     Mutation: {
