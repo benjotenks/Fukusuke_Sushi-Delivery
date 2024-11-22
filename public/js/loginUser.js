@@ -61,6 +61,7 @@ document.getElementById('loginUserForm').addEventListener('submit', async (event
             
             
             hideModal(bootstrap.Modal.getInstance(document.getElementById('loginModal')));
+            hideModal(bootstrap.Modal.getInstance(document.getElementById('codigoConfirmacion')));
             //document.getElementById('pedidoUserId').children[0].textContent = 'User id: ' + userId;
         } else {
             console.log(result)

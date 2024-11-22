@@ -230,7 +230,7 @@
                                     <input type="text" class="form-control" id="registerPhone" placeholder="Teléfono">
                                 </div>
                                 <div class="my-3 d-flex justify-content-center">
-                                    <button type="submit" class="btn btn-primary" id="registerBtn">Registrar</button>
+                                    <button type="submit" class="btn btn-primary" id="registerBtn" data-bs-toggle="modal" data-bs-target="#codigoConfirmacion">Registrar</button>
                                 </div>
                             </form>
                         </div>
@@ -257,6 +257,24 @@
             </div>
         </div>
 
+        <!-- Modal codigo de confirmacion -->
+        <div class="modal fade" id="codigoConfirmacion" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Codigo de confirmacion</h5>
+                    </div>
+                    <div class="modal-body">
+                        <label>Codigo:</label>
+                        <input type="text" class="form-control" id="InputCodigoConfirmacion" placeholder="Ingrese el codigo de confirmacion">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="ReenviarCodigoConfirmacion">Reenviar</button>
+                        <button type="button" class="btn btn-primary" id="ConfirmarCodigoConfirmacion">Listo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <script src="js/scripts.js" defer></script>
         <script src="js/registerUser.js" defer></script>

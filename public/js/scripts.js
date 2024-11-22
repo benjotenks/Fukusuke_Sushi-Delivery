@@ -2,7 +2,10 @@
  TODO:
     1. Agregar mutations a pedidos ya existentes
 */
-
+const baseUrl = 
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:8090' // Local
+    : 'https://fukusuke-sushi-delivery.onrender.com';
 
 const imgDir = '/menuData/imagenes/'; 
 let categories = [];
@@ -41,8 +44,7 @@ const usersOptionsByType = {
         {'label': 'Ver Perfil', 'target': '#profileModal'},
         {'label': 'Realizar Venta', 'target': '#'}
     ]
-};
-
+}
 
 function defineColorUser(type) {
     switch (type) {
@@ -56,6 +58,7 @@ function defineColorUser(type) {
             return 'white';
     }
 }
+
 
 async function login(email, password) {
     const emailInput = document.getElementById('loginEmail');
@@ -81,15 +84,6 @@ function createCard(opcion) {
     const imgBG = 'rgba(255, 255, 255, 0.1)';
     const txtBG = 'rgba(255, 255, 255, 0.1)';
     const prcBG = 'rgba(255, 255, 255, 0.09)';
-    /*
-    const card = document.createElement('div');
-    card.className = 'menuOpcsCard d-flex jutify-content-center align-items-center p-1 my-2';
-
-    const imgDiv = document.createElement('div');
-    imgDiv.className = 'imgDivCard';
-
-    */
-
 
     const card = document.createElement('div');
     card.className = 'menuOpcsCard d-flex justify-content-start align-items-center p-1 my-2';
@@ -607,4 +601,3 @@ document.addEventListener('DOMContentLoaded', () =>{
     initCart();
     initButtons();
 });
-

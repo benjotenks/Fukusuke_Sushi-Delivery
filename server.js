@@ -1,8 +1,11 @@
 const mongoose = require('mongoose');
 const express = require('express');
+const bodyParser = require('body-parser')
 const cors = require('cors');
 const { ApolloServer, gql } = require('apollo-server-express');
 const path = require('path');
+const Mailjet = require('node-mailjet');
+
 require('dotenv').config();
 
 
@@ -68,6 +71,7 @@ type Query {
     getUsers: [User]
     findUserByEmail(email: String!, password: String!): User
     getUserByRun(run: String!): User
+    checkEmail(email: String!): User
 
     getPedidos: [Pedido]
     getPedido(id: ID!): Pedido
@@ -116,6 +120,10 @@ const resolvers = {
             }
             return user;
         },
+        async checkEmail(_, { email }) {
+            const user = await User.findOne({ email });
+            return user;
+        },
     },
     Mutation: {
         async addUser(_, { input }) {
@@ -152,6 +160,13 @@ const resolvers = {
 
 // Se instancia la app 
 const app = express();
+app.use(bodyParser.json());
+
+
+const mailjetClient = new Mailjet({
+    apiKey: process.env.mailjetAPIKEY,
+    apiSecret: process.env.mailjetSECRETKEY,
+  });
 
 // Se define el puerto en el que correra la aplicacion
 const PORT = process.env.PORT;
@@ -186,6 +201,46 @@ startServer().then(() => {
 // Sirve archivos estáticos de la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+app.post('/autenticacion/AutenticarCorreo', async (req, res) => {
+    const { email, secretCode } = req.body;
+    if (!email) {
+        res.status(400).json({ message: 'Email is required' });
+        return;
+    }
+
+    try {
+        // Envía el correo
+        await mailjetClient.post('send', { version: 'v3.1' }).request({
+          Messages: [
+            {
+              From: {
+                Email: "b.elguetaperez@gmail.com", // Cambia a tu correo
+                Name: "Fukusuke-sushi-delivery",
+              },
+              To: [
+                {
+                  Email: email,
+                },
+              ],
+              Subject: "Código de Confirmación",
+              TextPart: `Tu código de confirmación es:
+    javascript
+    Copiar código
+              ${secretCode}. Por favor, introdúcelo para confirmar tu registro.`,
+              HTMLPart: `<h3>¡Gracias por registrarte!</h3><p>Tu código de confirmación es: <strong>${secretCode}</strong>.</p>`,
+            },
+          ],
+        });
+    
+        // Responde al cliente (frontend)
+        res.status(200).send({ message: 'Correo enviado con éxito', secretCode }); // Opcional: guarda el código en la base de datos en lugar de devolverlo.
+    
+      } catch (error) {
+        console.error('Error enviando correo:', error);
+        res.status(500).send({ message: 'Error enviando correo' });
+      }     
+});
 
 // Redirigir a index.html al acceder a la raíz (/)
 app.get('/', (req, res) => {

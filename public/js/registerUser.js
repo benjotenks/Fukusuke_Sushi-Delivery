@@ -1,13 +1,60 @@
 // Definir la URL base dependiendo del entorno (local o producción)
-const baseUrl = 
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:8090' // Local
-    : 'https://fukusuke-sushi-delivery.onrender.com';
+
 
 const funciono = true;
-document.getElementById('registerUserForm').addEventListener('submit', async (event) => {
-    event.preventDefault();
+let secretCode = null;
 
+async function confirmCodeConfirmation() {
+    const email = document.getElementById('registerEmail').value;
+    secretCode = Math.floor(100000 + Math.random() * 900000).toString(); // Código de 6 dígitos
+    try {
+        
+        const response = await fetch('http://localhost:8090/autenticacion/AutenticarCorreo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, secretCode }),
+        });
+        
+        const result = await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to send confirmation email.');
+    }
+}
+
+async function checkEmail(email) {
+    try {
+        const response = await fetch(`${baseUrl}/graphql`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query: `
+                    query checkEmail($email: String!) {
+                        checkEmail(email: $email) {
+                            email
+                        }
+                    }
+                `,
+                variables: {
+                    email: email,
+                }
+            }),
+        });
+        const result = await response.json();
+        if (result.data && result.data.checkEmail) {
+            return true;
+        }
+    } catch (error) {
+        console.error('Error: ', error);
+        return false;
+    }
+}
+
+async function fullRegister(){
     const run = document.getElementById('registerRun').value;
     const name = document.getElementById('registerName').value;
     const address = document.getElementById('registerAddress').value;
@@ -19,6 +66,11 @@ document.getElementById('registerUserForm').addEventListener('submit', async (ev
     const password = document.getElementById('registerPassword').value;
     const phone = document.getElementById('registerPhone').value;
 
+    const existEmail = await checkEmail(email);
+    if (existEmail) {
+        alert('Email already exists.');
+        return;
+    }
     try {
         const response = await fetch(`${baseUrl}/graphql`, {
             method: 'POST',
@@ -66,7 +118,17 @@ document.getElementById('registerUserForm').addEventListener('submit', async (ev
         funciono = false;
     }
     if (funciono) {
-        login(email, password);
+        await login(email, password);
     }
-    
+}
+
+document.getElementById('registerUserForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    confirmCodeConfirmation();
+    document.getElementById('ConfirmarCodigoConfirmacion').addEventListener('click', function() {
+        if (document.getElementById('InputCodigoConfirmacion').value === secretCode) {
+            fullRegister();
+        }
+    });
 })
