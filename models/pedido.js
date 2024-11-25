@@ -15,6 +15,22 @@ const pedidoSchema = new mongoose.Schema({
         type: [String], // Lista de cadenas
         required: true,
     },
+    type: {
+        type: String,
+        required: true,
+    },
+    fecha: {
+        type: String,
+        required: true,
+    },
+    hora: {
+        type: String,
+        required: true,
+    },
+    total: {
+        type: Number,
+        required: true,
+    },
 });
 
 // Exportar el modelo de pedido
