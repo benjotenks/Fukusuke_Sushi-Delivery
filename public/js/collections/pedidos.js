@@ -328,7 +328,7 @@ async function prepareCart() {
     const preparedCart =  Array.from(cart.values()).map(item => JSON.stringify(item));
     const total = Array.from(cart.values()).reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-    await pago(total);
+    // await pago(total); // Lo quito por problemas de retorno a la pagina
 
     try {
         const response = await fetch(`${baseUrl}/graphql`, {
