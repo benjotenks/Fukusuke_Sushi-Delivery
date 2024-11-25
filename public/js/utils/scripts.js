@@ -125,7 +125,8 @@ function createCard(opcion) {
 
     const priceText = document.createElement('p');
     priceText.className  = 'priceText'
-    priceText.textContent = `$${opcion.Precio}`;
+    priceText.style.color = (opcion.AplicaDescuento ? 'purple' : 'black');
+    priceText.textContent = `$${Math.round(opcion.Precio * (opcion.AplicaDescuento ? (1 - opcion.Descuento) : 1))}`;
 
     addButton = document.createElement('button');
     addButton.style.backgroundColor = 'transparent';
@@ -148,7 +149,16 @@ function createCard(opcion) {
     card.appendChild(priceDiv);
 
     return card;
-    
+}
+
+async function goTo(category) {
+    const categoryElement = document.querySelector(`[name="${category}"]`);
+    if (categoryElement) {
+        window.scrollTo({
+            top: categoryElement.offsetTop + 190, // Ajusta el valor según sea necesario
+            behavior: 'smooth'
+        });
+    }
 }
 
 // Función que obtiene el menú y lo modifica
@@ -166,6 +176,13 @@ async function getMenu() {
             .split('\n')
             .map(line => line.trim())
             .filter(line => line !== '');
+
+        const dropdownCategorias = document.getElementById('dropdownCategorias');
+        dropdownCategorias.innerHTML = categories.map((category) => `
+            <li>
+                <button class="dropdown-item" type="button" onclick="goTo('${category}')">${category}</button>
+            </li>
+        `).join('');
 
         // Cargar el menú
         const menuResponse = await fetch('/menuData/menu.xlsx');
@@ -209,6 +226,7 @@ async function initMenu() {
     categories.forEach(async (category) => {
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'categoryDiv row my-3'; // Margen superior e inferior
+        categoryDiv.setAttribute('name', category);
         categoryDiv.style = "width: 100%; padding: 1px; border: 1px solid rgba(255, 255, 255, 0.09);";
     
         // Crear encabezado para la categoría
