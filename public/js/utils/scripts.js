@@ -154,8 +154,12 @@ function createCard(opcion) {
 async function goTo(category) {
     const categoryElement = document.querySelector(`[name="${category}"]`);
     if (categoryElement) {
+       
+        // Calcular la cantidad de desplazamiento
+        const scrollToPosition = categoryElement.offsetTop
+
         window.scrollTo({
-            top: categoryElement.offsetTop + 190, // Ajusta el valor según sea necesario
+            top: scrollToPosition,
             behavior: 'smooth'
         });
     }

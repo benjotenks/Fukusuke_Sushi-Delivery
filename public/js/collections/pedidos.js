@@ -222,16 +222,114 @@ async function modifyDBTypeDespacho(id, type, date, time) {
     }
 }
 
+async function pago(total){
+    return new Promise((resolve, reject) => {
+         // Crear un formulario
+        const form = document.createElement('form');
+        form.action = 'http://www.checkbox.cl/PaymentGateway/pay.php';
+        form.method = 'post';
+
+        // Crear los campos hidden
+        const comercioId = document.createElement('input');
+        comercioId.type = 'hidden';
+        comercioId.name = 'comercio_id';
+        comercioId.value = '821';
+        form.appendChild(comercioId);
+
+        const comercioLogo = document.createElement('input');
+        comercioLogo.type = 'hidden';
+        comercioLogo.name = 'comercio_logo';
+        comercioLogo.value = '';
+        form.appendChild(comercioLogo);
+
+        const itemNombre = document.createElement('input');
+        itemNombre.type = 'hidden';
+        itemNombre.name = 'item_nombre';
+        itemNombre.value = "Carrito Fukusuke-Sushi";  // Aquí pones el nombre del ítem
+        form.appendChild(itemNombre);
+
+        const itemId = document.createElement('input');
+        itemId.type = 'hidden';
+        itemId.name = 'item_id';
+        itemId.value = '';  // Aquí pones el id del ítem
+        form.appendChild(itemId);
+
+        const itemPrecio = document.createElement('input');
+        itemPrecio.type = 'hidden';
+        itemPrecio.name = 'item_precio';
+        itemPrecio.value = total;  // Aquí pones el precio del ítem
+        form.appendChild(itemPrecio);
+
+        const urlReturn = document.createElement('input');
+        urlReturn.type = 'hidden';
+        urlReturn.name = 'url_return';
+        urlReturn.value = baseUrl;  // Aquí pones la URL de retorno
+        form.appendChild(urlReturn);
+
+        const urlCancel = document.createElement('input');
+        urlCancel.type = 'hidden';
+        urlCancel.name = 'url_cancel';
+        urlCancel.value = baseUrl;  // Aquí pones la URL de cancelación
+        form.appendChild(urlCancel);
+
+        const urlH2H = document.createElement('input');
+        urlH2H.type = 'hidden';
+        urlH2H.name = 'url_h2h';
+        urlH2H.value = '';  // Aquí pones la URL de h2h
+        form.appendChild(urlH2H);
+
+        const clienteNombres = document.createElement('input');
+        clienteNombres.type = 'hidden';
+        clienteNombres.name = 'cliente_nombres';
+        clienteNombres.value = 'Benjamin Elgueta';  // Aquí pones el nombre del cliente
+        form.appendChild(clienteNombres);
+
+        const clienteRut = document.createElement('input');
+        clienteRut.type = 'hidden';
+        clienteRut.name = 'cliente_rut';
+        clienteRut.value = '214959615';  // Aquí pones el RUT del cliente
+        form.appendChild(clienteRut);
+
+        const clienteEmail = document.createElement('input');
+        clienteEmail.type = 'hidden';
+        clienteEmail.name = 'cliente_email';
+        clienteEmail.value = 'respaldocrack58@gmail.com';  // Aquí pones el correo del cliente
+        form.appendChild(clienteEmail);
+
+        // Crear el botón de envío
+        const submitButton = document.createElement('input');
+        submitButton.type = 'submit';
+        submitButton.value = 'Pagar Online';
+        form.appendChild(submitButton);
+
+        // Agregar el formulario al DOM (puedes agregarlo donde desees)
+        document.body.appendChild(form);
+
+        // Escuchar el evento de "submit" para resolver la promesa
+        form.addEventListener('submit', () => {
+            // Aquí puedes colocar lógica para verificar que el pago se ha completado
+            resolve();  // Resolver la promesa para continuar con el siguiente paso
+        });
+
+        // Enviar el formulario
+        form.submit();
+    });
+}
+
 async function prepareCart() {
     const userId = administrandoAccount ? administrandoAccount.id : User.get("userId") ; // Obtener el userId
     const userRun = administrandoAccount ? administrandoAccount.run : User.get("userRun"); // Obtener el userRun
     
-    const preparedCart =  Array.from(cart.values()).map(item => JSON.stringify(item));
-    const total = Array.from(cart.values()).reduce((acc, item) => acc + item.price * item.quantity, 0);
     if (!userId) {
         alert('Loguéese primero'); // Mostrar alerta al usuario
         throw new Error('El usuario no está logueado'); // Lanzar un error para detener la ejecución
     }
+
+    const preparedCart =  Array.from(cart.values()).map(item => JSON.stringify(item));
+    const total = Array.from(cart.values()).reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+    await pago(total);
+
     try {
         const response = await fetch(`${baseUrl}/graphql`, {
             method: 'POST',
