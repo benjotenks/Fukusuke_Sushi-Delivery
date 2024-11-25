@@ -131,7 +131,6 @@ async function checkEmail(email) {
 async function confirmCodeConfirmation() {
     const email = document.getElementById('registerEmail').value;
     secretCode = Math.floor(100000 + Math.random() * 900000).toString(); // Código de 6 dígitos
-    console.log(secretCode);
     try {
         
         const response = await fetch('http://localhost:8090/autenticacion/AutenticarCorreo', {
@@ -369,10 +368,9 @@ document.getElementById('loginUserForm').addEventListener('submit', async (event
                 ["userPhone", result.data.findUserByEmail.phone],
                 ["userType", result.data.findUserByEmail.type],
             ]);
-
             colorUser = defineColorUser(User.get("userType"));
             changeNavUser(User.get("userRun"));
-            getPedidos();
+            getPeiddoPorUserId();
             
             hideModal(bootstrap.Modal.getInstance(document.getElementById('loginModal')));
             hideModal(bootstrap.Modal.getInstance(document.getElementById('codigoConfirmacion')));

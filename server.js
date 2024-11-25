@@ -107,6 +107,7 @@ type Query {
 
     getPedidos: [Pedido]
     getPedido(id: ID!): Pedido
+    getOrdenesDespacho: [Pedido]
     getPedidosByUser(user: ID!): [Pedido]
 
     getProductos: [Producto]
@@ -121,6 +122,7 @@ type Mutation {
 
     addPedido(input: PedidoInput): Pedido
     updatePedidoType(id: ID!, type: String!): Pedido
+    modifyDBTypeDespacho(id: ID!, type: String!, fecha: String!, hora: String!): Pedido
     cancelPedido(id: ID!): Alert
 
     addProducto(input: ProductoInput): Producto
@@ -160,6 +162,10 @@ const resolvers = {
         },
         
         // Pedidos Query
+        async getPedidos(_, { }) {
+            const pedidos = await Pedido.find().populate('user');
+            return pedidos;
+        },
         async getPedidosByUser(_, { user }) {
             try {
                 const pedidos = await Pedido.find({ user }).populate('user');
@@ -169,7 +175,10 @@ const resolvers = {
                 throw new Error(`No se pudo obtener los pedido: ${error.message}`);
             }
         },
-
+        async getOrdenesDespacho(_, { }) {
+            const pedidos = await Pedido.find({ type: 'por despachar' }).populate('user');
+            return pedidos;
+        },
         // Productos Query
         async getProductos(_, { }) {
             const productos = await Producto.find();
@@ -212,7 +221,6 @@ const resolvers = {
 
         // Pedidos Mutation
         async addPedido(_, { input }) {
-            console.log('a');
             const newPedido = new Pedido({
                 ...input,
                 fecha: new Date().toLocaleDateString(),
@@ -243,6 +251,10 @@ const resolvers = {
                 console.error("Error al actualizar el pedido: ", error);
                 throw new Error(`Error al actualizar el pedido: ${error.message}`);
             }
+        },
+        async modifyDBTypeDespacho(_, { id, type, fecha, hora }) {
+            const pedido = await Pedido.findByIdAndUpdate(id, { type, fecha, hora }, { new: true });
+            return pedido;
         },
         async cancelPedido(_, { id }) {
             await Pedido.deleteOne({ _id: id });

@@ -294,3 +294,50 @@ async function deleteProduct(nombre) {
         console.error(error);
     }
 }
+
+async function getOrdenesDespacho() {
+    try {
+        const response = await fetch(`${baseUrl}/graphql`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query: `
+                    query getOrdenesDespacho {
+                        getOrdenesDespacho {
+                            id
+                            user{
+                                name
+                                address
+                                province
+                                region
+                                phone
+                            }
+                            userRun
+                            carrito
+                            type
+                            fecha
+                            hora
+                            total
+                        }
+                    }`,
+                variables: {
+                    // No hay variables
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text(); // Lee el cuerpo del error
+            console.error(`Error en la API (status: ${response.status}):`, errorText);
+            return [];
+        }
+
+        const result = await response.json();
+        const data = result.data.getOrdenesDespacho;
+        return data;
+    } catch (error) {
+        console.error(error);
+    }
+}

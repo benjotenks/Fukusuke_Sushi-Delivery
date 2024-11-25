@@ -1,5 +1,44 @@
-async function getPedidos() {
-    const userId = (administradorActiveAccount ? administradorActiveAccount.id : User.get("userId"));
+async function getPedidos(){
+    try {
+        const response = await fetch(`${baseUrl}/graphql`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query: `
+                    query getPedidos{
+                        getPedidos{
+                            id
+                            user {
+                                id
+                                name
+                            }
+                            userRun
+                            carrito
+                            type
+                            fecha
+                            hora
+                            total
+                        }
+                    }
+                `,
+                variables: {
+                    // No se requieren variables
+                }
+            })
+        });
+
+        const result = await response.json();
+        const data = result.data.getPedidos;
+        return data;
+    } catch(error) {
+        console.log('Error: ', error);
+    }
+}
+
+async function getPeiddoPorUserId() {
+    const userId = (administrandoAccount ? administrandoAccount.id : User.get("userId"));
     try {
         const response = await fetch(`${baseUrl}/graphql`, {
             method: 'POST',
@@ -100,34 +139,22 @@ async function updateType(type, fecha, hora) {
     // Calcula la diferencia de tiempo en milisegundos
     const timeDifference = currentDateTime - pedidoDateTime;
 
-    // 20 minutos = 20 * 60 * 1000 milisegundos
-    const twentyMinutes = 20 * 60 * 1000;
-    // 1 hora = 60 minutos * 60 segundos * 1000 milisegundos
-    const oneHour = 60 * 60 * 1000;
-    // 2 horas = 2 * 60 minutos * 60 segundos * 1000 milisegundos
-    const twoHours = 2 * 60 * 60 * 1000;
+    // 10 minutos = 10 * 60 * 1000 milisegundos
+    const tenMinutes = 10 * 60 * 1000;
+    // 30 minutos = 30 * 60 * 1000 milisegundos
+    const halfHour = 30 * 60 * 1000;
 
-    // Si la diferencia es entre 0 y 20 minutos, devuelve el tipo original
-    if (timeDifference <= twentyMinutes) {
-        return type;
+    // Si la diferencia es entre 0 y 10 minutos, devuelve el tipo original
+    if (timeDifference >= tenMinutes && type === 'pendiente') {
+        type = 'por despachar';
     }
 
-    // Si la diferencia está entre 20 minutos y 1 hora, devuelve "en camino"
-    if (timeDifference > twentyMinutes && timeDifference <= oneHour) {
-        type = 'en camino';
-    }
-
-    // Si ha pasado más de 1 hora, con 75% de probabilidad es "entregado" y 25% "en camino atrasado"
-    if (timeDifference > oneHour && timeDifference <= twoHours) {
-        type = Math.random() < 0.75 ? 'entregado' : 'en camino atrasado';
-    }
-
-    // Si han pasado más de 2 horas, asegura que esté "entregado"
-    if (timeDifference > twoHours) {
+    // Si ha pasado más de 30 minutos, asegura que esté "entregado"
+    if (timeDifference > halfHour && type === 'en camino') {
         type = 'entregado';
     }
 
-    return type; // En caso de que no entre en ninguna de las condiciones, devuelve el tipo original
+    return type; // Devuelve el tipo actualizado
 }
 
 async function updateDBType(id, type) {
@@ -161,10 +188,44 @@ async function updateDBType(id, type) {
     }
 }
 
+async function modifyDBTypeDespacho(id, type, date, time) {
+    try {
+        const response = await fetch(`${baseUrl}/graphql`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query: `
+                    mutation modifyDBTypeDespacho($id: ID!, $type: String!, $fecha: String!, $hora: String!) {
+                        modifyDBTypeDespacho(id: $id, type: $type, fecha: $fecha, hora: $hora) {
+                            id
+                            type
+                            fecha
+                            hora
+                        }
+                    }
+                `,
+                variables: {
+                    id: id,
+                    type: type,
+                    fecha: date,
+                    hora: time,
+                }
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`Error al realizar la mutación: ${response.statusText}`);
+        }
+    }catch (error){
+        console.log('error: ', error)
+    }
+}
+
 async function prepareCart() {
-    const userId = administradorActiveAccount ? administradorActiveAccount.id : User.get("userId") ; // Obtener el userId
-    const userRun = administradorActiveAccount ? administradorActiveAccount.run : User.get("userRun"); // Obtener el userRun
-    console.log('userRun: ', userRun);
+    const userId = administrandoAccount ? administrandoAccount.id : User.get("userId") ; // Obtener el userId
+    const userRun = administrandoAccount ? administrandoAccount.run : User.get("userRun"); // Obtener el userRun
+    
     const preparedCart =  Array.from(cart.values()).map(item => JSON.stringify(item));
     const total = Array.from(cart.values()).reduce((acc, item) => acc + item.price * item.quantity, 0);
     if (!userId) {
@@ -203,9 +264,11 @@ async function prepareCart() {
         });
         
         const result = await response.json(); // Convertir la respuesta a JSON
-        getPedidos();
+        cart = new Map(); // Limpiar el carrito
+        getPeiddoPorUserId();
         hideModal(bootstrap.Modal.getInstance(document.getElementById('cartModal'))); // Ocultar el modal
         new bootstrap.Modal(document.getElementById('pedidosUsuarioModal')).show() // Mostrar el modal de pedidos
+        updateCart(); // Actualizar el carrito en la UI
     } catch (error){
         console.log('Error: ', error);
     }
@@ -247,7 +310,7 @@ async function deletePedido(id) {
         const message = data.data.cancelPedido.message; // Mensaje del servidor
 
         // Actualiza los pedidos después de la cancelación
-        await getPedidos();
+        await getPeiddoPorUserId();
 
     } catch (error) {
         console.log('Error: ', error);
@@ -272,7 +335,7 @@ function initPedidosUser(pedidos) {
                 return 'border-secondary';
         }
     }
-    if (!administradorActiveAccount) {
+    if (!administrandoAccount) {
         pedidosUsuarioModalHeader.innerText = 'Mis Pedidos';
     }
 

@@ -51,8 +51,8 @@ async function getAccountByRun() {
         alert("No se encontró el usuario");
         return;
     }
-    administradorActiveAccount = Object.entries(data);
-    administradorActiveAccount = {
+    administrandoAccount = Object.entries(data);
+    administrandoAccount = {
         id: data.id,
         run: data.run,
         name: data.name,
@@ -66,7 +66,7 @@ async function getAccountByRun() {
         phone: data.phone,
         type: data.type,
     }
-    getPedidos();
+    getPeiddoPorUserId();
     
 }
 
@@ -148,15 +148,15 @@ async function administrarClientes() {
     }
     await getAccountByRun();
     const labelUsuario = document.getElementById('labelUsuarioHeader');
-    labelUsuario.textContent = `${User.get("userRun")}  (${administradorActiveAccount.run})`;
+    labelUsuario.textContent = `${User.get("userRun")}  (${administrandoAccount.run})`;
 }
 
 async function administrarCuentas() {
     await getAccountByRun();
-    changeAdministratorModal(administradorActiveAccount);
-    if (administradorActiveAccount) document.getElementById('runAdmin').value = administradorActiveAccount.run;
+    changeAdministratorModal(administrandoAccount);
+    if (administrandoAccount) document.getElementById('runAdmin').value = administrandoAccount.run;
     const cartTitle = document.getElementById('titleCarritoDeCompras');
-    cartTitle.textContent = `Carrito de compras del usuario ${administradorActiveAccount.run}`;
+    cartTitle.textContent = `Carrito de compras del usuario ${administrandoAccount.run}`;
 }
 
 async function modifyMenuItem(itemName, type) {
@@ -274,7 +274,7 @@ async function administratorSaveChangesMenuItem(){
 }
 
 async function anularComprasUsuario() {
-    const run = administradorActiveAccount.run || document.getElementById('runAdmin').value;
+    const run = document.getElementById('runAdmin').value;
     if (run == "") {
         console.log("Ingrese un run");
         alert("Ingrese un run");
@@ -283,7 +283,7 @@ async function anularComprasUsuario() {
     const title = document.getElementById('titlePedidosUsuario');
     title.textContent = `Pedidos del usuario ${run}`;
     await getAccountByRun();
-    await getPedidos();
+    await getPeiddoPorUserId();
     hideModal(bootstrap.Modal.getInstance(document.getElementById('administrar')));
     new bootstrap.Modal(document.getElementById('pedidosUsuarioModal')).show();
 
@@ -303,7 +303,7 @@ function administradorModalBodyProductos(){
                                 <p class="m-0" name="administradorMenuItemName"">${item.Nombre}</p>
                             </div>
                             <div class="d-flex col-4 justify-content-center align-items-center" style="flex-grow: 1; height: 100%;">
-                                <p class="m-0" name="administradorMenuItemQuantity">$${item.Cantidad}</p>
+                                <p class="m-0" name="administradorMenuItemQuantity">${item.Cantidad}</p>
                             </div>
                             <div class="d-flex flex-end justify-content-center align-items-center">
                                 <button type="button" class="cartButton text-success" onclick="modifyMenuItem('${item.Nombre}', 'add')">

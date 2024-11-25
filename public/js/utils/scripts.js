@@ -20,14 +20,12 @@ let pedidosUsuario = new Map();
 let colorUser = 'white'; //default
 
 
-let administradorActiveAccount = null;
-// Asumo la autenticacion de usuario en el register (Por Hacer)
-
+let administrandoAccount = null;
 // Variable que contiene todos los datos de uso de cada tipo de usuario del caso 19
 const usersOptionsByType = {
     'owner': [
         {'label': 'Ver Perfil', 'target': '#profileModal'}, 
-        {'label': 'Generar Reporte De Ventas', 'target': '#'}
+        {'label': 'Generar Reporte De Ventas', 'target': '#reporteVentasModal', 'onclick': 'generarReporteVentas()'}
     ],
     'admin': [
         {'label': 'Ver Perfil', 'target': '#profileModal'}, 
@@ -38,7 +36,7 @@ const usersOptionsByType = {
     ],
     'despacho': [
         {'label': 'Ver Perfil', 'target': '#profileModal'},
-        {'label': 'Obtener Orden Despachos', 'target': '#'}
+        {'label': 'Obtener Orden Despachos', 'target': '#obtenerOrdenesDespachoModal', 'onclick': 'obtenerOrdenesDespachoModal()'}
     ],
     'user': [
         {'label': 'Ver Perfil', 'target': '#profileModal', 'id':'profileModalBtn',},
@@ -46,7 +44,7 @@ const usersOptionsByType = {
     ],
     'virtual worker': [
         {'label': 'Ver Perfil', 'target': '#profileModal'},
-        {'label': 'Realizar Venta', 'target': '#'}
+        {'label': 'Administrar Cliente', 'target': '#administrar', 'onclick': 'postNavChangeEvents()'},
     ]
 }
 
@@ -58,6 +56,8 @@ function defineColorUser(type) {
             return 'gold';
         case 'despacho':
             return 'green';
+        case 'virtual worker':
+            return 'pink';
         default:
             return 'white';
     }
@@ -269,7 +269,7 @@ function updateCart() {
                 ${Array.from(cart.values()).map((product) => `
                     <div class="row d-flex flex-row justify-content-between align-items-center">
                         <div class="col-3 d-flex justify-content-center align-items-center text-center titleItemCart" name="titleCartOpc">${product.title}</div>
-                        <div class="col-3 d-flex justify-content-center align-items-center text-center quantityItemCart" name="quantityCartOpc">${product.quantity}</div>
+                        <div class="col-3 d-flex justify-content-center align-items-center text-center quantityItemCart" name="quantityCartOpc">${product.quantity }</div>
                         <div class="col-3 d-flex justify-content-center align-items-center text-center priceItemCart" name="priceCartOpc">$${product.price}</div>
                         <div class="col-3 d-flex justify-content-end">
                             <button class="cartButton text-primary" name="addItemCart">
@@ -482,6 +482,9 @@ function initButtons() {
                 case 'test4':
                     login('Jonathan@joestar.1998', 'Joseph Joestar');
                     break;
+                case 'test5':
+                    login('respaldocrack58@gmail.com', 'test');
+                    break;
                 default:
                     console.error('Opción de login no válida');
             }
@@ -494,8 +497,19 @@ async function startLanding() {
     await initMenu();
 }
 
+// Ahora mismo no me acuerdo de todo lo que tengo que actualizar
+async function updateImportantData() {
+    if (!User) return;
+    obtenerOrdenesDespachoModal();
+    generarReporteVentas();
+
+}
+
 document.addEventListener('DOMContentLoaded', async () =>{
     await startLanding(); // Se obtiene lo necesario para procesar apenas carge el DOM
+    setInterval(() => {
+        updateImportantData();
+    }, 300000);
 });
 
 document.addEventListener('DOMContentLoaded', () =>{
