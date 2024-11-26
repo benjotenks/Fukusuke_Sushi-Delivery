@@ -182,12 +182,20 @@ async function getMenu() {
             .filter(line => line !== '');
 
         const dropdownCategorias = document.getElementById('dropdownCategorias');
-        dropdownCategorias.innerHTML = categories.map((category) => `
-            <li>
-                <button class="dropdown-item" type="button" onclick="goTo('${category}')">${category}</button>
-            </li>
-        `).join('');
-
+        dropdownCategorias.innerHTML = '';
+        dropdownCategorias.innerHTML = `
+        <a class="nav-link text-white dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-grid-fill nav-icon"></i>
+                Categorias
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" >
+            ${categories.map((category) => `
+                <li>
+                    <button class="dropdown-item" type="button" onclick="goTo('${category}')">${category}</button>
+                </li>
+                `).join('')}
+        </ul>
+        `
         // Cargar el menú
         const menuResponse = await fetch('/menuData/menu.xlsx');
         if (!menuResponse.ok) {

@@ -223,7 +223,6 @@ async function modifyDBTypeDespacho(id, type, date, time) {
 }
 
 async function pago(total){
-    return new Promise((resolve, reject) => {
          // Crear un formulario
         const form = document.createElement('form');
         form.action = 'http://www.checkbox.cl/PaymentGateway/pay.php';
@@ -296,24 +295,10 @@ async function pago(total){
         clienteEmail.value = 'respaldocrack58@gmail.com';  // Aquí pones el correo del cliente
         form.appendChild(clienteEmail);
 
-        // Crear el botón de envío
-        const submitButton = document.createElement('input');
-        submitButton.type = 'submit';
-        submitButton.value = 'Pagar Online';
-        form.appendChild(submitButton);
-
-        // Agregar el formulario al DOM (puedes agregarlo donde desees)
-        document.body.appendChild(form);
-
-        // Escuchar el evento de "submit" para resolver la promesa
-        form.addEventListener('submit', () => {
-            // Aquí puedes colocar lógica para verificar que el pago se ha completado
-            resolve();  // Resolver la promesa para continuar con el siguiente paso
-        });
+        document.body.appendChild(form); // Añadir el formulario al body
 
         // Enviar el formulario
         form.submit();
-    });
 }
 
 async function prepareCart() {
@@ -328,7 +313,7 @@ async function prepareCart() {
     const preparedCart =  Array.from(cart.values()).map(item => JSON.stringify(item));
     const total = Array.from(cart.values()).reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-    // await pago(total); // Lo quito por problemas de retorno a la pagina
+    pago(total); 
 
     try {
         const response = await fetch(`${baseUrl}/graphql`, {
